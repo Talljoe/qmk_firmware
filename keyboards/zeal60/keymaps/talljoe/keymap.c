@@ -9,7 +9,7 @@ enum layers {
     _NORMAN,
     _NAV,
     _ADJUST,
-    _RESET,
+    _RESET = BACKLIGHT_MOD_LAYER_3,
 };
 
 enum custom_keycodes {
@@ -26,7 +26,7 @@ enum custom_keycodes {
 
 #define MO_NAV    MO(_NAV)
 #define MO_ADJ    MO(_ADJUST)
-#define TT_ADJ    TT(_ADJUST)
+#define MO_ADJ    MO(_ADJUST)
 #define MO_RST    MO(_RESET)
 #define TG_ADJ    TG(_ADJUST)
 #define LY_QWER   DF(_BASE)
@@ -40,7 +40,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_ESC , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   , KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS, KC_EQL , KC_BSLS, KC_GRV,
       KC_TAB , KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   , KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_LBRC, KC_RBRC, KC_BSPC,
       KC_LCTL, KC_A   , KC_S   , KC_D   , KC_F   , KC_G   , KC_H   , KC_J   , KC_K   , KC_L   , KC_SCLN, KC_QUOT,          KC_ENT ,
-      KC_LSFT, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH,          KC_RSFT, TT_ADJ ,
+      KC_LSFT, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH,          KC_RSFT, MO_ADJ ,
       KC_LCTL, KC_LGUI, KC_LALT,                            NV_SPC ,                            KC_RALT, KC_RGUI, KC_RCTL, KC_F24 ),
   [_WORKMAN] = KM(
       _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
@@ -82,8 +82,6 @@ extern zeal_backlight_config g_config;
 void map_row_column_to_led( uint8_t row, uint8_t column, uint8_t *led );
 
 void set_backlight_defaults(void) {
-  uint8_t space_stab_l = 36+6;
-  uint8_t space_stab_r = 54+13;
   uint8_t space;
   uint8_t caps_lock;
   map_row_column_to_led(4, 13, &caps_lock);
@@ -101,9 +99,9 @@ void set_backlight_defaults(void) {
     .color_1 = solarized.base2,
     .color_2 = solarized.base02,
     .caps_lock_indicator = { .index = caps_lock, .color = solarized.red },
-    .layer_1_indicator = { .index = space_stab_l, .color = solarized.blue },
-    .layer_2_indicator = { .index = space_stab_r, .color = solarized.yellow },
-    .layer_3_indicator = { .index = space, .color = solarized.red },
+    .layer_1_indicator = { .index = space, .color = solarized.blue },
+    .layer_2_indicator = { .index = space, .color = solarized.yellow },
+    .layer_3_indicator = { .index = 254, .color = solarized.red },
     .alphas_mods = {
       BACKLIGHT_ALPHAS_MODS_ROW_0,
       BACKLIGHT_ALPHAS_MODS_ROW_1,
