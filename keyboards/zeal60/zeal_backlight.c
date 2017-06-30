@@ -613,21 +613,21 @@ void backlight_effect_indicators(void)
 	// still the backlight configuration layer and we don't
 	// want "all LEDs" indicators hiding the backlight effect,
 	// but still allow end users to do whatever they want.
-	if ( IS_LAYER_ON(3) )
+	if ( IS_LAYER_ON(BACKLIGHT_MOD_LAYER_3) )
 	{
 		if ( g_config.layer_3_indicator.index != 255 )
 		{
 			backlight_effect_indicators_set_colors( g_config.layer_3_indicator.index, g_config.layer_3_indicator.color );
 		}
 	}
-	else if ( IS_LAYER_ON(2) )
+	else if ( IS_LAYER_ON(BACKLIGHT_MOD_LAYER_2) )
 	{
 		if ( g_config.layer_2_indicator.index != 255 )
 		{
 			backlight_effect_indicators_set_colors( g_config.layer_2_indicator.index, g_config.layer_2_indicator.color );
 		}
 	}
-	else if ( IS_LAYER_ON(1) )
+	else if ( IS_LAYER_ON(BACKLIGHT_MOD_LAYER_1) )
 	{
 		if ( g_config.layer_1_indicator.index != 255 )
 		{
