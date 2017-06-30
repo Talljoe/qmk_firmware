@@ -5,14 +5,16 @@
 
 enum layers {
     _BASE = 0,
-    _WORKMAN = 1,
-    _NAV = 2,
-    _ADJUST = 3,
-    _RESET = 15,
+    _WORKMAN,
+    _NORMAN,
+    _NAV,
+    _ADJUST,
+    _RESET,
 };
 
 enum custom_keycodes {
   DEFAULTS = SAFE_RANGE,
+  TOGGLE_BACKLIGHT,
 };
 
 #define _______ KC_TRNS
@@ -27,6 +29,8 @@ enum custom_keycodes {
 #define TG_ADJ    TG(_ADJUST)
 #define LY_QWER   DF(_BASE)
 #define LY_WORK   DF(_WORKMAN)
+#define LY_NRMN   DF(_NORMAN)
+#define TG_BKLT   TOGGLE_BACKLIGHT
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_BASE] = KM(
@@ -39,20 +43,26 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
       _______, KC_Q   , KC_D   , KC_R   , KC_W   , KC_B   , KC_J   , KC_F   , KC_U   , KC_P   , KC_SCLN, _______, _______, _______,
       _______, KC_A   , KC_S   , KC_H   , KC_T   , KC_G   , KC_Y   , KC_N   , KC_E   , KC_O   , KC_I   , _______,          _______,
-      _______, KC_Z   , KC_X   , KC_M   , KC_C   , KC_V   , KC_K   , KC_L   , _______, _______, _______,          _______, _______,
+      _______, KC_Z   , KC_X   , KC_M   , KC_C   , KC_V   , KC_K   , KC_L   , KC_COMM, KC_DOT , KC_SLSH,          _______, _______,
+      _______, _______, _______,                            _______,                            _______, _______, _______, _______),
+  [_NORMAN] = KM(
+      _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+      _______, KC_Q   , KC_W   , KC_D   , KC_F   , KC_K   , KC_J   , KC_U   , KC_R   , KC_L   , KC_SCLN, _______, _______, _______,
+      _______, KC_A   , KC_S   , KC_E   , KC_T   , KC_G   , KC_Y   , KC_N   , KC_I   , KC_O   , KC_H   , _______,          _______,
+      _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_P   , KC_M   , KC_COMM, KC_DOT , KC_SLSH,          _______, _______,
       _______, _______, _______,                            _______,                            _______, _______, _______, _______),
   [_NAV] = KM(
       KC_GRV , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-      XXXXXXX, KC_F1  , KC_F2  , KC_F3  , KC_F4  , XXXXXXX, XXXXXXX, KC_PGUP, KC_UP  , KC_PGDN, XXXXXXX, XXXXXXX, XXXXXXX, KC_DEL ,
-      XXXXXXX, KC_F5  , KC_F6  , KC_F7  , KC_F8  , XXXXXXX, KC_HOME, KC_LEFT, KC_DOWN, KC_RGHT, XXXXXXX, XXXXXXX,          XXXXXXX,
-      XXXXXXX, KC_F9  , KC_F10 , KC_F11 , KC_F12 , XXXXXXX, KC_END , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX, XXXXXXX,
+      XXXXXXX, KC_F1  , KC_F2  , KC_F3  , KC_F4  , KC_VOLU, KC_INS , KC_PGUP, KC_UP  , KC_PGDN, XXXXXXX, XXXXXXX, XXXXXXX, KC_DEL ,
+      XXXXXXX, KC_F5  , KC_F6  , KC_F7  , KC_F8  , KC_MUTE, KC_HOME, KC_LEFT, KC_DOWN, KC_RGHT, XXXXXXX, XXXXXXX,          XXXXXXX,
+      XXXXXXX, KC_F9  , KC_F10 , KC_F11 , KC_F12 , KC_VOLD, KC_END , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX, XXXXXXX,
       MO_ADJ , XXXXXXX, XXXXXXX,                            XXXXXXX,                            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX),
   [_ADJUST] = KM(
       MO_RST , H1_INC , S1_INC , H2_INC , S2_INC , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, BR_DEC , BR_INC , XXXXXXX, MO_RST ,
       XXXXXXX, H1_DEC , S1_DEC , H2_DEC , S2_DEC , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, EF_DEC , EF_INC , DEFAULTS,
       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX,
-      XXXXXXX, LY_QWER, LY_WORK, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX, TG_ADJ ,
-      XXXXXXX, AG_NORM, AG_SWAP,                            XXXXXXX,                            XXXXXXX, XXXXXXX, XXXXXXX, KC_CAPS),
+      XXXXXXX, LY_QWER, LY_WORK, LY_NRMN, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX, TG_ADJ ,
+      XXXXXXX, AG_NORM, AG_SWAP,                            TG_BKLT,                            XXXXXXX, XXXXXXX, XXXXXXX, KC_CAPS),
   // To Reset hit FN + ` + Esc
   [_RESET] = KM(
       RESET  , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RESET ,
@@ -117,6 +127,27 @@ void set_backlight_defaults(void) {
   }
 }
 
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  static uint8_t last_effect;
+  switch (keycode) {
+    case DEFAULTS:
+      if (record->event.pressed) set_backlight_defaults();
+      return false;
+    case TOGGLE_BACKLIGHT:
+      if (record->event.pressed) {
+        if (g_config.effect) {
+          last_effect = g_config.effect;
+          g_config.effect = 0;
+        } else {
+          g_config.effect = last_effect;
+        }
+      }
+      return false;
+  }
+
+  return true;
+}
+
 void matrix_init_user(void) {
   if (!eeconfig_is_enabled()) {
     eeconfig_init();
@@ -124,15 +155,6 @@ void matrix_init_user(void) {
   }
 }
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case DEFAULTS:
-      set_backlight_defaults();
-      return false;
-  }
-
-  return true;
-}
 uint32_t default_layer_state_set_kb(uint32_t state) {
   // persist changes to default layers
   eeconfig_update_default_layer(state);
