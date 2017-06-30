@@ -103,6 +103,7 @@ void update_tri_layer(uint8_t layer1, uint8_t layer2, uint8_t layer3);
 void tap_random_base64(void);
 
 #define IS_LAYER_ON(layer)  (layer_state & (1UL << (layer)))
+#define IS_LAYER_ON_OR_DEFAULT(layer)  ((layer_state | default_layer_state) & (1UL << (layer)))
 #define IS_LAYER_OFF(layer) (~layer_state & (1UL << (layer)))
 
 void matrix_init_kb(void);
