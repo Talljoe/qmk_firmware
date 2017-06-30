@@ -15,6 +15,8 @@ enum layers {
 enum custom_keycodes {
   DEFAULTS = SAFE_RANGE,
   TOGGLE_BACKLIGHT,
+  EFFECT,
+  EFFECT_END = EFFECT + 10
 };
 
 #define _______ KC_TRNS
@@ -31,6 +33,7 @@ enum custom_keycodes {
 #define LY_WORK   DF(_WORKMAN)
 #define LY_NRMN   DF(_NORMAN)
 #define TG_BKLT   TOGGLE_BACKLIGHT
+#define FX(x)     (EFFECT + x)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_BASE] = KM(
@@ -58,9 +61,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       XXXXXXX, KC_F9  , KC_F10 , KC_F11 , KC_F12 , KC_VOLD, KC_END , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX, XXXXXXX,
       MO_ADJ , XXXXXXX, XXXXXXX,                            XXXXXXX,                            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX),
   [_ADJUST] = KM(
-      MO_RST , H1_INC , S1_INC , H2_INC , S2_INC , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, BR_DEC , BR_INC , XXXXXXX, MO_RST ,
-      XXXXXXX, H1_DEC , S1_DEC , H2_DEC , S2_DEC , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, EF_DEC , EF_INC , DEFAULTS,
-      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX,
+      MO_RST , FX(1)  , FX(2)  , FX(3)  , FX(4)  , FX(5)  , FX(6)  , FX(7)  , FX(8)  , FX(9)  , FX(10) , BR_DEC , BR_INC , XXXXXXX, MO_RST ,
+      XXXXXXX, H1_INC , S1_INC , H2_INC , S2_INC , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, EF_DEC , EF_INC , DEFAULTS,
+      XXXXXXX, H1_DEC , S1_DEC , H2_DEC , S2_DEC , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX,
       XXXXXXX, LY_QWER, LY_WORK, LY_NRMN, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX, TG_ADJ ,
       XXXXXXX, AG_NORM, AG_SWAP,                            TG_BKLT,                            XXXXXXX, XXXXXXX, XXXXXXX, KC_CAPS),
   // To Reset hit FN + ` + Esc
@@ -131,16 +134,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   static uint8_t last_effect;
   switch (keycode) {
     case DEFAULTS:
-      if (record->event.pressed) set_backlight_defaults();
+      if (IS_PRESSED(record->event)) set_backlight_defaults();
       return false;
     case TOGGLE_BACKLIGHT:
-      if (record->event.pressed) {
+      if (IS_PRESSED(record->event)) {
         if (g_config.effect) {
           last_effect = g_config.effect;
           g_config.effect = 0;
         } else {
           g_config.effect = last_effect;
         }
+      }
+      return false;
+    case EFFECT...EFFECT_END:
+      if (IS_PRESSED(record->event)) {
+        uint8_t effect = keycode - EFFECT;
+        g_config.effect = effect;
+        backlight_config_save();
       }
       return false;
   }
