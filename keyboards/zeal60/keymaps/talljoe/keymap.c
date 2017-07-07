@@ -7,6 +7,8 @@ enum layers {
     _BASE = 0,
     _WORKMAN,
     _NORMAN,
+    _DVORAK,
+    _COLMAK,
     _NAV,
     _ADJUST,
     _RESET = BACKLIGHT_MOD_LAYER_3,
@@ -32,6 +34,8 @@ enum custom_keycodes {
 #define LY_QWER   DF(_BASE)
 #define LY_WORK   DF(_WORKMAN)
 #define LY_NRMN   DF(_NORMAN)
+#define LY_DVRK   DF(_DVORAK)
+#define LY_CLMK   DF(_COLMAK)
 #define TG_BKLT   TOGGLE_BACKLIGHT
 #define FX(x)     (EFFECT + x)
 #define TG_NKRO   MAGIC_TOGGLE_NKRO
@@ -55,6 +59,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       _______, KC_A   , KC_S   , KC_E   , KC_T   , KC_G   , KC_Y   , KC_N   , KC_I   , KC_O   , KC_H   , _______,          _______,
       _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_P   , KC_M   , KC_COMM, KC_DOT , KC_SLSH,          _______, _______,
       _______, _______, _______,                            _______,                            _______, _______, _______, _______),
+  [_DVORAK] = KM(
+      _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_LBRC, KC_RBRC, _______, _______,
+      _______, KC_QUOT, KC_COMM, KC_DOT , KC_P   , KC_Y   , KC_F   , KC_G   , KC_C   , KC_R   , KC_L   , KC_SLSH, KC_EQL , _______,
+      _______, KC_A   , KC_O   , KC_E   , KC_U   , KC_I   , KC_D   , KC_H   , KC_T   , KC_N   , KC_S   , KC_MINS,          _______,
+      _______, KC_SCLN, KC_Q   , KC_J   , KC_K   , KC_X   , KC_B   , KC_M   , KC_W   , KC_V   , KC_Z   ,          _______, _______,
+      _______, _______, _______,                            _______,                            _______, _______, _______, _______),
+  [_COLMAK] = KM(
+      _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+      _______, KC_Q   , KC_W   , KC_F   , KC_P   , KC_G   , KC_J   , KC_L   , KC_U   , KC_Y   , KC_SCLN, _______, _______, _______,
+      _______, KC_A   , KC_R   , KC_S   , KC_T   , KC_D   , KC_H   , KC_N   , KC_E   , KC_I   , KC_O   , _______,          _______,
+      _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_K   , KC_M   , KC_COMM, KC_DOT , KC_SLSH,          _______, _______,
+      _______, _______, _______,                            _______,                            _______, _______, _______, _______),
   [_NAV] = KM(
       KC_GRV , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
       XXXXXXX, KC_F1  , KC_F2  , KC_F3  , KC_F4  , KC_VOLU, KC_INS , KC_PGUP, KC_UP  , KC_PGDN, XXXXXXX, XXXXXXX, XXXXXXX, KC_DEL ,
@@ -65,7 +81,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       MO_RST , FX(1)  , FX(2)  , FX(3)  , FX(4)  , FX(5)  , FX(6)  , FX(7)  , FX(8)  , FX(9)  , FX(10) , BR_DEC , BR_INC , XXXXXXX, MO_RST ,
       XXXXXXX, H1_INC , S1_INC , H2_INC , S2_INC , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, EF_DEC , EF_INC , DEFAULTS,
       XXXXXXX, H1_DEC , S1_DEC , H2_DEC , S2_DEC , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX,
-      TG_NKRO, LY_QWER, LY_WORK, LY_NRMN, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX, TG_ADJ ,
+      TG_NKRO, LY_QWER, LY_WORK, LY_NRMN, LY_DVRK, LY_CLMK, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX, TG_ADJ ,
       XXXXXXX, AG_NORM, AG_SWAP,                            TG_BKLT,                            XXXXXXX, XXXXXXX, XXXXXXX, KC_CAPS),
   // To Reset hit FN + ` + Esc
   [_RESET] = KM(
