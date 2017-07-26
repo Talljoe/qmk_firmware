@@ -3,3 +3,4 @@ ifndef QUANTUM_DIR
 endif
 
 SRC += solarized.c
+MOUSEKEY_ENABLE = yes

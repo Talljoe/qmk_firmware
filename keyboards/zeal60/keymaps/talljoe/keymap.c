@@ -72,8 +72,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       _______, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_K   , KC_M   , KC_COMM, KC_DOT , KC_SLSH,          _______, _______,
       _______, _______, _______,                            _______,                            _______, _______, _______, _______),
   [_NAV] = KM(
-      KC_GRV , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-      XXXXXXX, KC_F1  , KC_F2  , KC_F3  , KC_F4  , KC_VOLU, KC_INS , KC_PGUP, KC_UP  , KC_PGDN, XXXXXXX, XXXXXXX, XXXXXXX, KC_DEL ,
+      KC_GRV , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_WH_U, XXXXXXX, XXXXXXX, XXXXXXX,
+      XXXXXXX, KC_F1  , KC_F2  , KC_F3  , KC_F4  , KC_VOLU, KC_INS , KC_PGUP, KC_UP  , KC_PGDN, KC_WH_L, KC_WH_D, KC_WH_R, KC_DEL ,
       XXXXXXX, KC_F5  , KC_F6  , KC_F7  , KC_F8  , KC_MUTE, KC_HOME, KC_LEFT, KC_DOWN, KC_RGHT, KC_END , XXXXXXX,          XXXXXXX,
       XXXXXXX, KC_F9  , KC_F10 , KC_F11 , KC_F12 , KC_VOLD, KC_END , KC_PGDN, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX, XXXXXXX,
       _______, _______, _______,                            _______,                            _______, _______, _______, XXXXXXX),
