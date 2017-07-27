@@ -73,7 +73,7 @@ enum quantum_keycodes {
     QK_LAYER_TAP_TOGGLE_MAX = 0x58FF,
 #ifdef STENO_ENABLE
     QK_STENO              = 0x5900,
-    QK_STENO_MAX          = 0x59ff,
+    QK_STENO_MAX          = 0x593F,
 #endif
     QK_MOD_TAP            = 0x6000,
     QK_MOD_TAP_MAX        = 0x7FFF,
