@@ -1,11 +1,7 @@
-#include "process_steno.h"
+ #include "process_steno.h"
 #include "quantum_keycodes.h"
 #include "keymap_steno.h"
 #include "virtser.h"
-
-uint8_t state[4] = {0};
-uint8_t pressed = 0;
-
 
 // TxBolt Codes
 #define TXB_NUL 0
@@ -41,6 +37,13 @@ uint8_t pressed = 0;
 
 #define TXB_GET_GROUP(code) ((code & TXB_GRPMASK) >> 6)
 
+#define BOLT_STATE_SIZE 4
+#define GEMINI_STATE_SIZE 6
+
+uint8_t state[MAX(BOLT_STATE_SIZE, GEMINI_STATE_SIZE)] = {0};
+uint8_t pressed = 0;
+steno_mode_t mode;
+
 uint8_t boltmap[64] = {
   TXB_NUL, TXB_NUM, TXB_NUM, TXB_NUM, TXB_NUM, TXB_NUM, TXB_NUM,
   TXB_S_L, TXB_S_L, TXB_T_L, TXB_K_L, TXB_P_L, TXB_W_L, TXB_H_L,
@@ -52,31 +55,86 @@ uint8_t boltmap[64] = {
 
 #define BOLTMAP_MASK (sizeof(boltmap) - 1)
 
-void send_steno_state(void) {
-  for (uint8_t i = 0; i < 4; ++i) {
-    if (state[i]) {
+
+void steno_clear_state(void) {
+  memset(state, 0, sizeof(state));
+}
+
+void steno_init() {
+  if (!eeconfig_is_enabled()) {
+    eeconfig_init();
+  }
+  mode = eeprom_read_byte(EECONFIG_STENOMODE);
+}
+
+void steno_set_mode(steno_mode_t new_mode) {
+  steno_clear_state();
+  mode = new_mode;
+  eeprom_update_byte(EECONFIG_STENOMODE, mode);
+}
+
+void send_steno_state(uint8_t size, bool send_empty) {
+  for (uint8_t i = 0; i < size; ++i) {
+    if (state[i] || send_empty) {
       virtser_send(state[i]);
-      state[i] = 0;
     }
   }
-  virtser_send(0);
+  steno_clear_state();
+}
+
+bool process_steno_bolt(uint16_t keycode, keyrecord_t *record) {
+  if(IS_PRESSED(record->event)) {
+    uint8_t boltcode = boltmap[keycode - QK_STENO];
+    ++pressed;
+    state[TXB_GET_GROUP(boltcode)] |= boltcode;
+  } else {
+    --pressed;
+    if (pressed <= 0) {
+      pressed = 0; // protect against spurious up keys
+      send_steno_state(BOLT_STATE_SIZE, false);
+      virtser_send(0);
+    }
+  }
+
+  return false;
+}
+
+bool process_steno_gemini(uint16_t keycode, keyrecord_t *record) {
+  if(IS_PRESSED(record->event)) {
+    uint8_t code = keycode - QK_STENO;
+    ++pressed;
+    state[code / 7] |= 1 << (6 - (code % 7));
+  } else {
+    --pressed;
+    if (pressed <= 0) {
+      pressed = 0; // protect against spurious up keys
+      state[0] |= 0x80; // Indicate start of packet
+      send_steno_state(GEMINI_STATE_SIZE, true);
+    }
+  }
+
+  return false;
 }
 
 bool process_steno(uint16_t keycode, keyrecord_t *record) {
-  if(keycode >= QK_STENO && keycode <= QK_STENO_MAX) {
-    if(IS_PRESSED(record->event)) {
-      uint8_t boltcode = boltmap[keycode & BOLTMAP_MASK];
-      ++pressed;
-      state[TXB_GET_GROUP(boltcode)] |= boltcode;
-    } else {
-      --pressed;
-      if (pressed <= 0) {
-        pressed = 0; // protect against spurious up keys
-        send_steno_state();
-      }
-    }
-    return false;
-  }
+  switch (keycode) {
+    case QK_STENO_BOLT:
+      steno_set_mode(STENO_MODE_BOLT);
+      return false;
 
+    case QK_STENO_GEMINI:
+      steno_set_mode(STENO_MODE_GEMINI);
+      return false;
+
+    case QK_STENO...STN_MAX:
+      switch(mode) {
+        case STENO_MODE_BOLT:
+          return process_steno_bolt(keycode, record);
+        case STENO_MODE_GEMINI:
+          return process_steno_gemini(keycode, record);
+        default:
+          return false;
+      }
+  }
   return true;
 }

@@ -65,7 +65,8 @@ enum steno_keycodes {
   STN_NA,
   STN_NB,
   STN_NC,
-  STN_ZR
+  STN_ZR,
+  STN_MAX = STN_ZR,
 };
 
 #endif
