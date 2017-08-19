@@ -104,8 +104,8 @@ bool update_state_bolt(uint8_t key) {
 }
 
 bool send_state_bolt(void) {
+  state[TXB_GET_GROUP(TXB_GRP3)] |= TXB_GRP3; // Ensure last byte is sent to terminate packet.
   send_steno_state(BOLT_STATE_SIZE, false);
-  virtser_send(0); // terminating byte
   return false;
 }
 
