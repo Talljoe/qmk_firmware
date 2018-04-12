@@ -77,6 +77,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #define BACKLIGHT_USE_SPLIT_RIGHT_SHIFT 0
 #define BACKLIGHT_USE_7U_SPACEBAR 0
 #define BACKLIGHT_USE_ISO_ENTER 0
+#define BACKLIGHT_DISABLE_HHKB_BLOCKER_LEDS 0
 
 #define BACKLIGHT_MOD_LAYER_1 1
 #define BACKLIGHT_MOD_LAYER_2 (BACKLIGHT_MOD_LAYER_1 + 1)

@@ -122,12 +122,21 @@ action_t action_for_key(uint8_t layer, keypos_t key)
         case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX:
             action.code = ACTION_LAYER_TAP_TOGGLE(keycode & 0xFF);
             break;
+        case QK_LAYER_MOD ... QK_LAYER_MOD_MAX:
+            mod = keycode & 0xF;
+            action_layer = (keycode >> 4) & 0xF;
+            action.code = ACTION_LAYER_MODS(action_layer, mod);
+            break;
         case QK_MOD_TAP ... QK_MOD_TAP_MAX:
-            action.code = ACTION_MODS_TAP_KEY((keycode >> 0x8) & 0x1F, keycode & 0xFF);
+            mod = mod_config((keycode >> 0x8) & 0x1F);
+            action.code = ACTION_MODS_TAP_KEY(mod, keycode & 0xFF);
             break;
     #ifdef BACKLIGHT_ENABLE
-        case BL_0 ... BL_15:
-            action.code = ACTION_BACKLIGHT_LEVEL(keycode - BL_0);
+        case BL_ON:
+            action.code = ACTION_BACKLIGHT_ON();
+            break;
+        case BL_OFF:
+            action.code = ACTION_BACKLIGHT_OFF();
             break;
         case BL_DEC:
             action.code = ACTION_BACKLIGHT_DECREASE();
@@ -142,6 +151,12 @@ action_t action_for_key(uint8_t layer, keypos_t key)
             action.code = ACTION_BACKLIGHT_STEP();
             break;
     #endif
+    #ifdef SWAP_HANDS_ENABLE
+        case QK_SWAP_HANDS ... QK_SWAP_HANDS_MAX:
+            action.code = ACTION(ACT_SWAP_HANDS, keycode & 0xff);
+            break;
+    #endif
+
         default:
             action.code = ACTION_NO;
             break;
@@ -179,5 +194,12 @@ uint16_t keymap_key_to_keycode(uint8_t layer, keypos_t key)
 __attribute__ ((weak))
 uint16_t keymap_function_id_to_action( uint16_t function_id )
 {
+    // The compiler sees the empty (weak) fn_actions and generates a warning
+    // This function should not be called in that case, so the warning is too strict
+    // If this function is called however, the keymap should have overridden fn_actions, and then the compile
+    // is comparing against the wrong array
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Warray-bounds"
 	return pgm_read_word(&fn_actions[function_id]);
+    #pragma GCC diagnostic pop
 }
