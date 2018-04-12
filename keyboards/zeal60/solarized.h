@@ -1,7 +1,7 @@
 #ifndef SOLARIZED_H
 #define SOLARIZED_H
 
-#include "../../zeal_color.h"
+#include "zeal_color.h"
 
 typedef struct {
   HSV base03;

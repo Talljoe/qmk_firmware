@@ -6,6 +6,7 @@ SRC =	zeal_backlight.c \
 		zeal_eeprom.c \
 		zeal_keymap.c \
 		IS31FL3731_driver.c \
+    solarized.c \
 		TWIlib.c
 
 # MCU name
@@ -61,7 +62,7 @@ OPT_DEFS += -DBOOTLOADER_SIZE=4096
 OPT_DEFS += -DNO_SUSPEND_POWER_DOWN
 
 # Build Options
-#   change to "no" to disable the options, or define them in the Makefile in 
+#   change to "no" to disable the options, or define them in the Makefile in
 #   the appropriate keymap folder that will get included automatically
 #
 BOOTMAGIC_ENABLE ?= no       # Virtual DIP switch configuration(+1000)
@@ -81,3 +82,5 @@ RGBLIGHT_ENABLE ?= no        # Enable WS2812 RGB underlight.  Do not enable this
 SLEEP_LED_ENABLE ?= no    # Breathing sleep LED during USB suspend
 
 RAW_ENABLE = yes
+
+LAYOUTS = 60_ansi 60_iso 60_ansi_split_bs_rshift
