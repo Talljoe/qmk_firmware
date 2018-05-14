@@ -22,6 +22,7 @@ enum layers {
     _DVORAK,
     _COLMAK,
     _GAME,
+    _MOUSE,
     _NAV,
     _NUM,
     _ADJUST,
@@ -39,6 +40,7 @@ enum tap_dancers {
 #define MO_ADJ    MO(_ADJUST)
 #define MO_RST    MO(_RESET)
 #define TG_ADJ    TG(_ADJUST)
+#define TG_MOUS   TG(_MOUSE)
 #ifdef ENABLE_GAME_LAYER
   #define TG_GAME TG(_GAME)
 #else
@@ -106,10 +108,10 @@ enum tap_dancers {
   #define H2_DEC KC_NO
   #define S2_INC KC_NO
   #define S2_DEC KC_NO
+
   #define FN_MO13 KC_NO
   #define FN_MO2 KC_NO
 #endif
-
 #ifdef TEMPLATE_TKL
   #define _X_ KC_NO
   #define TEMPLATE( \
