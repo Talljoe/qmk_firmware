@@ -6,8 +6,8 @@ SRC =	../zeal60/zeal60.c \
 		../zeal60/zeal_color.c \
 		../zeal60/zeal_eeprom.c \
 		../zeal60/zeal_keymap.c \
-		../zeal60/IS31FL3731_driver.c \
-		../zeal60/TWIlib.c
+		is31fl3731.c \
+		i2c_master.c
 
 # MCU name
 MCU = atmega32u4
