@@ -1,7 +1,7 @@
-SRC += talljoe.c
-
-ifneq ("$(wildcard users/$(KEYMAP)/config.h)","")
-    CONFIG_H += users/$(KEYMAP)/config.h
-endif
+SRC += talljoe.c tapdance.c
 
 EXTRAFLAGS+=-flto
+
+TAP_DANCE_ENABLE=yes
+CONSOLE_ENABLE=no
+COMMAND_ENABLE=no
