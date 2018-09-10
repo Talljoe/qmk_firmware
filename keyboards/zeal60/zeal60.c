@@ -1,83 +1,113 @@
+/* Copyright 2017 Jason Williams (Wilba)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "zeal60.h"
+#include "zeal60_api.h"
+
 // Check that no backlight functions are called
-#if BACKLIGHT_ENABLED
-#include "zeal_backlight.h"
+#if RGB_BACKLIGHT_ENABLED
+#include "rgb_backlight.h"
 #endif // BACKLIGHT_ENABLED
-#include "zeal_keymap.h"
-#include "zeal_eeprom.h"
-#include "zeal_rpc.h"
 
 #include "raw_hid.h"
-#include "config.h"
+#include "dynamic_keymap.h"
+#include "timer.h"
+#include "tmk_core/common/eeprom.h"
+
+bool eeprom_is_valid(void)
+{
+	return (eeprom_read_word(((void*)EEPROM_MAGIC_ADDR)) == EEPROM_MAGIC &&
+			eeprom_read_byte(((void*)EEPROM_VERSION_ADDR)) == EEPROM_VERSION);
+}
+
+void eeprom_set_valid(bool valid)
+{
+	eeprom_update_word(((void*)EEPROM_MAGIC_ADDR), valid ? EEPROM_MAGIC : 0xFFFF);
+	eeprom_update_byte(((void*)EEPROM_VERSION_ADDR), valid ? EEPROM_VERSION : 0xFF);
+}
 
 #ifdef RAW_ENABLE
 
 void raw_hid_receive( uint8_t *data, uint8_t length )
 {
-	uint8_t command = data[0];
-	switch ( command )
+	uint8_t *command_id = &(data[0]);
+	uint8_t *command_data = &(data[1]);
+	switch ( *command_id )
 	{
-		case id_protocol_version:
+		case id_get_protocol_version:
 		{
-			msg_protocol_version *msg = (msg_protocol_version*)&data[1];
-			msg->version = PROTOCOL_VERSION;
+			command_data[0] = PROTOCOL_VERSION >> 8;
+			command_data[1] = PROTOCOL_VERSION & 0xFF;
 			break;
 		}
-#if USE_KEYMAPS_IN_EEPROM
-		case id_keymap_keycode_load:
+		case id_get_keyboard_value:
 		{
-			msg_keymap_keycode_load *msg = (msg_keymap_keycode_load*)&data[1];
-			msg->keycode = keymap_keycode_load( msg->layer, msg->row, msg->column );
+			if ( command_data[0] == 0x01 )
+			{
+				uint32_t value = timer_read32();
+				command_data[1] = (value >> 24 ) & 0xFF;
+				command_data[2] = (value >> 16 ) & 0xFF;
+				command_data[3] = (value >> 8 ) & 0xFF;
+				command_data[4] = value & 0xFF;
+			}
+			else
+			{
+				*command_id = id_unhandled;
+			}
 			break;
 		}
-		case id_keymap_keycode_save:
+#ifdef DYNAMIC_KEYMAP_ENABLE
+		case id_dynamic_keymap_get_keycode:
 		{
-			msg_keymap_keycode_save *msg = (msg_keymap_keycode_save*)&data[1];
-			keymap_keycode_save( msg->layer, msg->row, msg->column, msg->keycode);
+			uint16_t keycode = dynamic_keymap_get_keycode( command_data[0], command_data[1], command_data[2] );
+			command_data[3] = keycode >> 8;
+			command_data[4] = keycode & 0xFF;
 			break;
 		}
-		case id_keymap_default_save:
+		case id_dynamic_keymap_set_keycode:
 		{
-			keymap_default_save();
+			dynamic_keymap_set_keycode( command_data[0], command_data[1], command_data[2], ( command_data[3] << 8 ) | command_data[4] );
 			break;
 		}
-#endif // USE_KEYMAPS_IN_EEPROM
-#if BACKLIGHT_ENABLED
-		case id_backlight_config_set_values:
+		case id_dynamic_keymap_clear_all:
 		{
-			msg_backlight_config_set_values *msg = (msg_backlight_config_set_values*)&data[1];
-			backlight_config_set_values(msg);
+			dynamic_keymap_clear_all();
+			break;
+		}
+#endif // DYNAMIC_KEYMAP_ENABLE
+#if RGB_BACKLIGHT_ENABLED
+		case id_backlight_config_set_value:
+		{
+			backlight_config_set_value(command_data);
+			break;
+		}
+		case id_backlight_config_get_value:
+		{
+			backlight_config_get_value(command_data);
+			break;
+		}
+		case id_backlight_config_save:
+		{
 			backlight_config_save();
 			break;
 		}
-		case id_backlight_config_set_alphas_mods:
-		{
-			msg_backlight_config_set_alphas_mods *msg = (msg_backlight_config_set_alphas_mods*)&data[1];
-			backlight_config_set_alphas_mods( msg->alphas_mods );
-			backlight_config_save();
-			break;
-		}
-		case id_backlight_set_key_color:
-		{
-			msg_backlight_set_key_color *msg = (msg_backlight_set_key_color*)&data[1];
-			backlight_set_key_color(msg->row, msg->column, msg->hsv);
-			break;
-		}
-#endif // BACKLIGHT_ENABLED
-		case id_system_get_state:
-		{
-			msg_system_state *msg = (msg_system_state*)&data[1];
-#if BACKLIGHT_ENABLED
-			msg->value = backlight_get_tick();
-#else
-			msg->value = 1; // TODO: need to decouple "uptime" from backlight
-#endif // BACKLIGHT_ENABLED
-			break;
-		}
+#endif // RGB_BACKLIGHT_ENABLED
 		default:
 		{
 			// Unhandled message.
-			data[0] = id_unhandled;
+			*command_id = id_unhandled;
 			break;
 		}
 	}
@@ -126,55 +156,44 @@ void matrix_init_kb(void)
 	// OK to load from EEPROM.
 	if (eeprom_is_valid())
 	{
-#if BACKLIGHT_ENABLED
+#if RGB_BACKLIGHT_ENABLED
 		backlight_config_load();
-#endif // BACKLIGHT_ENABLED
+#endif // RGB_BACKLIGHT_ENABLED
 		// TODO: do something to "turn on" keymaps in EEPROM?
 	}
 	else
 	{
-#if BACKLIGHT_ENABLED
+#if RGB_BACKLIGHT_ENABLED
 		// If the EEPROM has not been saved before, or is out of date,
 		// save the default values to the EEPROM. Default values
 		// come from construction of the zeal_backlight_config instance.
 		backlight_config_save();
+#endif // RGB_BACKLIGHT_ENABLED
 
-		// Clear the LED colors stored in EEPROM
-		for ( int row=0; row < MATRIX_ROWS; row++ )
-		{
-			HSV hsv;
-			for ( int column=0; column < MATRIX_COLS; column++ )
-			{
-				hsv.h = rand() & 0xFF;
-				hsv.s = rand() & 0x7F;
-				hsv.v = 255;
-				backlight_set_key_color( row, column, hsv );
-			}
-		}
-#endif // BACKLIGHT_ENABLED
-
+#ifdef DYNAMIC_KEYMAP_ENABLE
 		// This saves "empty" keymaps so it falls back to the keymaps
 		// in the firmware (aka. progmem/flash)
-		keymap_default_save();
+		dynamic_keymap_clear_all();
+#endif
 
 		// Save the magic number last, in case saving was interrupted
 		eeprom_set_valid(true);
 	}
 
-#if BACKLIGHT_ENABLED
+#if RGB_BACKLIGHT_ENABLED
 	// Initialize LED drivers for backlight.
 	backlight_init_drivers();
 	
 	backlight_timer_init();
 	backlight_timer_enable();
-#endif // BACKLIGHT_ENABLED
+#endif // RGB_BACKLIGHT_ENABLED
 
 	matrix_init_user();
 }
 
 void matrix_scan_kb(void)
 {
-#if BACKLIGHT_ENABLED
+#if RGB_BACKLIGHT_ENABLED
 	// This only updates the LED driver buffers if something has changed.
 	backlight_update_pwm_buffers();
 #endif // BACKLIGHT_ENABLED
@@ -183,118 +202,12 @@ void matrix_scan_kb(void)
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record)
 {
-	// Record keypresses for backlight effects
-	if ( record->event.pressed )
-	{
-#if BACKLIGHT_ENABLED
-		backlight_set_key_hit( record->event.key.row, record->event.key.col );
+#if RGB_BACKLIGHT_ENABLED
+	process_record_backlight(keycode, record);
 #endif // BACKLIGHT_ENABLED
-	}
 
 	switch(keycode)
 	{
-#if BACKLIGHT_ENABLED
-		case BR_INC:
-			if (record->event.pressed)
-			{
-				backlight_brightness_increase();
-			}
-			return false;
-			break;
-		case BR_DEC:
-			if (record->event.pressed)
-			{
-				backlight_brightness_decrease();
-			}
-			return false;
-			break;
-		case EF_INC:
-			if (record->event.pressed)
-			{
-				backlight_effect_increase();
-			}
-			return false;
-			break;
-		case EF_DEC:
-			if (record->event.pressed)
-			{
-				backlight_effect_decrease();
-			}
-			return false;
-			break;
-		case ES_INC:
-			if (record->event.pressed)
-			{
-				backlight_effect_speed_increase();
-			}
-			return false;
-			break;
-		case ES_DEC:
-			if (record->event.pressed)
-			{
-				backlight_effect_speed_decrease();
-			}
-			return false;
-			break;
-		case H1_INC:
-			if (record->event.pressed)
-			{
-				backlight_color_1_hue_increase();
-			}
-			return false;
-			break;
-		case H1_DEC:
-			if (record->event.pressed)
-			{
-				backlight_color_1_hue_decrease();
-			}
-			return false;
-			break;
-		case S1_INC:
-			if (record->event.pressed)
-			{
-				backlight_color_1_sat_increase();
-			}
-			return false;
-			break;
-		case S1_DEC:
-			if (record->event.pressed)
-			{
-				backlight_color_1_sat_decrease();
-				break;
-			}
-			return false;
-			break;
-		case H2_INC:
-			if (record->event.pressed)
-			{
-				backlight_color_2_hue_increase();
-			}
-			return false;
-			break;
-		case H2_DEC:
-			if (record->event.pressed)
-			{
-				backlight_color_2_hue_decrease();
-			}
-			return false;
-			break;
-		case S2_INC:
-			if (record->event.pressed)
-			{
-				backlight_color_2_sat_increase();
-			}
-			return false;
-			break;
-		case S2_DEC:
-			if (record->event.pressed)
-			{
-				backlight_color_2_sat_decrease();
-				break;
-			}
-			return false;
-			break;
-#endif // BACKLIGHT_ENABLED
 		case FN_MO13:
 			if (record->event.pressed)
 			{
@@ -407,22 +320,22 @@ void action_function(keyrecord_t *record, uint8_t id, uint8_t opt)
 
 void led_set_kb(uint8_t usb_led)
 {
-#if BACKLIGHT_ENABLED
+#if RGB_BACKLIGHT_ENABLED
 	backlight_set_indicator_state(usb_led);
-#endif // BACKLIGHT_ENABLED
+#endif // RGB_BACKLIGHT_ENABLED
 }
 
 void suspend_power_down_kb(void)
 {
-#if BACKLIGHT_ENABLED
+#if RGB_BACKLIGHT_ENABLED
 	backlight_set_suspend_state(true);
-#endif // BACKLIGHT_ENABLED
+#endif // RGB_BACKLIGHT_ENABLED
 }
 
 void suspend_wakeup_init_kb(void)
 {
-#if BACKLIGHT_ENABLED
+#if RGB_BACKLIGHT_ENABLED
 	backlight_set_suspend_state(false);
-#endif // BACKLIGHT_ENABLED
+#endif // RGB_BACKLIGHT_ENABLED
 }
 
