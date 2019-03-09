@@ -17,6 +17,11 @@
 
 #include "quantum.h"
 
+__attribute__((weak))
+bool process_indicator_led_kb(uint32_t state);
+__attribute__((weak))
+bool process_indicator_led_user(uint32_t state);
+
 /* This a shortcut to help you visually see your layout.
  *
  * The first section contains all of the arguments representing the physical

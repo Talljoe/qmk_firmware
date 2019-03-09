@@ -6,7 +6,7 @@
 #endif
 
 #ifdef VISUALIZER_ENABLE
-const char layer_names[][16] = {
+const char layer_names[32][16] = {
   [_BASE] = "QWERTY",
   [_WORKMAN] = "Workman",
   [_NORMAN] = "Norman",
