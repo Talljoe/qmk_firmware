@@ -40,6 +40,7 @@ enum layers {
     _COLMAK,
     _MALTROFF,
     _NORTRON,
+    _MALMAN,
     _GAME,
     _NAV,
     _NUM,
@@ -69,9 +70,11 @@ enum layers {
 #if SPACE_COUNT >= 2
   #define LY_MALT DF(_MALTROFF)
   #define LY_NTRN DF(_NORTRON)
+  #define LY_MLMN DF(_MALMAN)
 #else
   #define LY_MALT KC_NO
   #define LY_NTRN KC_NO
+  #define LY_MLMN KC_NO
 #endif
 #define TG_NKRO   MAGIC_TOGGLE_NKRO
 #define KC_PTT    KC_F24
