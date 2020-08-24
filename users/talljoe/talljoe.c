@@ -171,7 +171,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   static uint8_t savedSat;
   static uint8_t savedVal;
 
-  if (keycode == KC_ESC) {
+  // Special behavior for Panic key.
+  if (record->event.key.row == 0 && record->event.key.col == (MATRIX_COLS - 1)) {
     if (record->event.pressed) {
       savedRgbMode = rgblight_get_mode();
       savedHue = rgblight_get_hue();
