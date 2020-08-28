@@ -78,7 +78,6 @@ enum layers {
 #endif
 #define TG_NKRO   MAGIC_TOGGLE_NKRO
 #define KC_PTT    KC_F24
-#define MS_MID    KC_MS_BTN3
 #define FX(x)     (EFFECT + x)
 
 #define CTL_ESC   CTL_T(KC_ESC)
@@ -91,6 +90,7 @@ enum layers {
 #define SH_LBRC   LSFT_T(KC_LBRC)
 #define SH_RBRC   RSFT_T(KC_RBRC)
 #define US_LOCK   TD(TD_LOCK)
+#define US_QUOT   LT(_NUM, KC_QUOT)
 
 #define MLT_E     LT(_NUM, KC_E)
 
